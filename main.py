@@ -1,10 +1,3 @@
-# def main():
-#     print("Hello from ats!")
-
-
-# if __name__ == "__main__":
-#     main()
-
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -48,6 +41,15 @@ if st.button("Rank Resumes") and jd and resumes:
         results.append((resume.name, round(float(score) * 100, 2)))
 
     results.sort(key=lambda x: x[1], reverse=True)
+
+    st.session_state["results"] = results
+    st.session_state["resume_texts"] = resume_texts
+    st.session_state["jd"] = jd
+
+if "results" in st.session_state:
+    results = st.session_state["results"]
+    resume_texts = st.session_state["resume_texts"]
+    jd = st.session_state["jd"]
 
     st.subheader("Rankings")
     for i, (name, score) in enumerate(results, 1):
