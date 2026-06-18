@@ -13,6 +13,12 @@ model = SentenceTransformer('all-MiniLM-L6-v2')
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.3-70b-versatile")
 
+def keyword_score(jd_text, resume_text):
+    jd_words = set(jd_text.lower().split())
+    resume_words = set(resume_text.lower().split())
+    common = jd_words & resume_words
+    return round(len(common) / len(jd_words) * 100, 2)
+
 def extract_text(file):
     if file.name.endswith(".pdf"):
         doc = fitz.open(stream=file.read(), filetype="pdf")
