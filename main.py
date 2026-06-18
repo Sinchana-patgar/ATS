@@ -22,6 +22,13 @@ def extract_text(file):
         return " ".join(p.text for p in doc.paragraphs)
     return ""
 
+def ask_groq(prompt):
+    response = client.chat.completions.create(
+        model=MODEL_NAME,
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return response.choices[0].message.content
+
 st.title("ATS Resume Tracker")
 st.caption("Powered by sentence-transformers + Groq")
 
@@ -41,7 +48,6 @@ if st.button("Rank Resumes") and jd and resumes:
         results.append((resume.name, round(float(score) * 100, 2)))
 
     results.sort(key=lambda x: x[1], reverse=True)
-
     st.session_state["results"] = results
     st.session_state["resume_texts"] = resume_texts
     st.session_state["jd"] = jd
@@ -63,7 +69,6 @@ if "results" in st.session_state:
     score = dict(results)[selected]
 
     col1, col2, col3 = st.columns(3)
-
     with col1:
         btn1 = st.button("Tell Me About the Resume", key="btn1")
     with col2:
@@ -73,28 +78,19 @@ if "results" in st.session_state:
 
     if btn1:
         with st.spinner("Thinking..."):
-            response = client.chat.completions.create(
-                model=MODEL_NAME,
-                messages=[{"role": "user", "content": f"Summarize this resume in 4 bullet points:\n{resume_text[:1500]}"}]
-            )
-            st.session_state["output"] = response.choices[0].message.content
+            st.session_state["output"] = ask_groq(f"Summarize this resume in 4 bullet points:\n{resume_text[:1500]}")
+        st.rerun()
 
     if btn2:
         with st.spinner("Thinking..."):
-            response = client.chat.completions.create(
-                model=MODEL_NAME,
-                messages=[{"role": "user", "content": f"Suggest 4 skills to improve based on this JD and resume:\n\nJD: {jd[:800]}\n\nResume: {resume_text[:800]}"}]
-            )
-            st.session_state["output"] = response.choices[0].message.content
+            st.session_state["output"] = ask_groq(f"Suggest 4 skills to improve based on this JD and resume:\n\nJD: {jd[:800]}\n\nResume: {resume_text[:800]}")
+        st.rerun()
 
     if btn3:
         with st.spinner("Thinking..."):
-            response = client.chat.completions.create(
-                model=MODEL_NAME,
-                messages=[{"role": "user", "content": f"Explain in 3 bullet points why this resume matches {score}% with the JD:\n\nJD: {jd[:800]}\n\nResume: {resume_text[:800]}"}]
-            )
-            st.session_state["output"] = f"Match Score: {score}%\n\n" + response.choices[0].message.content
+            st.session_state["output"] = f"Match Score: {score}%\n\n" + ask_groq(f"Explain in 3 bullet points why this resume matches {score}% with the JD:\n\nJD: {jd[:800]}\n\nResume: {resume_text[:800]}")
+        st.rerun()
 
-    if "output" in st.session_state and st.session_state["output"]:
+    if st.session_state.get("output"):
         st.divider()
         st.write(st.session_state["output"])
