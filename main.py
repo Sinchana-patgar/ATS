@@ -27,7 +27,7 @@ def extract_text(file):
         doc = Document(file)
         return " ".join(p.text for p in doc.paragraphs)
     return ""
-   def ask_groq(prompt):
+def ask_groq(prompt):
        try:
            response = client.chat.completions.create(
                model=MODEL_NAME,
@@ -36,7 +36,7 @@ def extract_text(file):
            return response.choices[0].message.content
        except Exception as e:
            st.error(f"Groq error (model={MODEL_NAME}): {e}")
-           st.stop()
+           st.stop()   
 
 st.title("ATS Resume Tracker")
 st.caption("Powered by sentence-transformers + Groq")
