@@ -11,8 +11,21 @@ from groq import Groq
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+st.sidebar.write("Available models:", sorted(m.id for m in client.models.list().data))
 MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.3-70b-versatile")
 st.sidebar.write("Using model:", MODEL_NAME)
+@st.cache_resource
+def pick_model():
+    available = sorted(m.id for m in client.models.list().data)
+    preferred = [os.getenv("MODEL_NAME"), "llama-3.3-70b-versatile", "llama-3.1-8b-instant"]
+    for m in preferred:
+        if m and m in available:
+            return m
+    chat = [m for m in available if not any(x in m for x in ("whisper", "guard", "tts", "playai"))]
+    return chat[0]
+
+MODEL_NAME = pick_model()
+
 def keyword_score(jd_text, resume_text):
     jd_words = set(jd_text.lower().split())
     resume_words = set(resume_text.lower().split())
