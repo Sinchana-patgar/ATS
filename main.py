@@ -12,7 +12,7 @@ from groq import Groq
 model = SentenceTransformer('all-MiniLM-L6-v2')
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.3-70b-versatile")
-
+   st.sidebar.write("Using model:", MODEL_NAME)
 def keyword_score(jd_text, resume_text):
     jd_words = set(jd_text.lower().split())
     resume_words = set(resume_text.lower().split())
@@ -27,13 +27,16 @@ def extract_text(file):
         doc = Document(file)
         return " ".join(p.text for p in doc.paragraphs)
     return ""
-
-def ask_groq(prompt):
-    response = client.chat.completions.create(
-        model=MODEL_NAME,
-        messages=[{"role": "user", "content": prompt}]
-    )
-    return response.choices[0].message.content
+   def ask_groq(prompt):
+       try:
+           response = client.chat.completions.create(
+               model=MODEL_NAME,
+               messages=[{"role": "user", "content": prompt}]
+           )
+           return response.choices[0].message.content
+       except Exception as e:
+           st.error(f"Groq error (model={MODEL_NAME}): {e}")
+           st.stop()
 
 st.title("ATS Resume Tracker")
 st.caption("Powered by sentence-transformers + Groq")
