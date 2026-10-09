@@ -12,7 +12,7 @@ from groq import Groq
 model = SentenceTransformer('all-MiniLM-L6-v2')
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.3-70b-versatile")
-   st.sidebar.write("Using model:", MODEL_NAME)
+st.sidebar.write("Using model:", MODEL_NAME)
 def keyword_score(jd_text, resume_text):
     jd_words = set(jd_text.lower().split())
     resume_words = set(resume_text.lower().split())
